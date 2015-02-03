@@ -16,6 +16,10 @@ helpers do
   def sha2(data)
     Digest::SHA2.new.hexdigest(data)
   end
+  def current_admin
+    p request.session
+    Admin.first(request.session[:user])
+  end
 end
 
 get '/posts' do
@@ -33,6 +37,20 @@ get '/posts/:id' do
   else
     status 404
   end
+end
+
+post '/posts' do
+  status 201
+  #if current_admin != nil
+    #if post = Post.create(body: params[:body], title: params[:title], admin_id: current_admin.id)
+      #status 201
+      #post.to_json
+    #else
+      #status 500
+    #end
+  #else
+    #status 402
+  #end
 end
 
 post '/session/new' do
