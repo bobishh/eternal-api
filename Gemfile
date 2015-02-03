@@ -8,6 +8,7 @@ gem "mongo_mapper"
 gem "bson_ext"
 
 group :development, :test do
+  gem "rake"
   gem "pry"
   gem "dotenv"
   gem "rspec"
