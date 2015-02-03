@@ -1,0 +1,6 @@
+development:
+  sessions:
+    default:
+      database: eternal_void_api
+      hosts:
+        - localhost:27017
