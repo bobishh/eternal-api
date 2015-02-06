@@ -9,7 +9,7 @@ gem "bson_ext"
 
 group :development, :test do
   gem "rake"
-  gem "pry-byebug"
+#  gem "pry-byebug"
   gem "pry"
   gem "dotenv"
   gem "rspec"
