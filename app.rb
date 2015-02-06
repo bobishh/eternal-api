@@ -1,10 +1,25 @@
 require 'sinatra'
 require 'sinatra/contrib'
 require 'json'
-require_relative './lib/models/models'
+require_relative './lib/models'
+require_relative './lib/token_generator'
+require 'pry'
+
 set :environment, :development
 class EternalVoidApi < Sinatra::Base
   register Sinatra::Contrib
+end
+
+before do
+  content_type :json
+end
+
+register do
+  def check(name)
+    condition do
+      error 401 unless send(name) == true
+    end
+  end
 end
 
 configure do
@@ -16,22 +31,40 @@ helpers do
   def sha2(data)
     Digest::SHA2.new.hexdigest(data)
   end
+  def valid_token?
+    user_id = params[:user_id]
+    token = params[:token]
+    if user_id && token
+      admin = Admin.find(user_id)
+      token = Token.first(value: token)
+      token.admin == admin
+    end
+  end
 end
 
 get '/posts' do
-  content_type :json
   status 200
   Post.all.to_json
 end
 
 get '/posts/:id' do
-  content_type :json
   post = Post.find(params[:id])
   if post != nil
     status 200
     post.to_json
   else
     status 404
+  end
+end
+
+post '/posts', check: :valid_token? do
+  post = Post.new(body: params[:body], title: params[:title], admin_id: params[:uid])
+  if post.save
+    status 201
+    post.to_json
+  else
+    status 500
+    "Post not created, #{post.errors}"
   end
 end
 
@@ -44,8 +77,11 @@ post '/session/new' do
   if  admin_digest == login_digest
     request.session[:user] = admin.id
     status 200
+    token = Token.new(value: TokenGenerator.generate, admin_id: admin.id, created_at: Time.now)
+    token.save
+    { token: token }.to_json
   else
-    status 402
+    status 401
+    "Wrong username/password pair"
   end
 end
-
