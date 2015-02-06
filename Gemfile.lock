@@ -15,10 +15,16 @@ GEM
     bson_ext (1.12.0)
       bson (~> 1.12.0)
     builder (3.2.2)
+    byebug (3.5.1)
+      columnize (~> 0.8)
+      debugger-linecache (~> 1.2)
+      slop (~> 3.6)
     celluloid (0.16.0)
       timers (~> 4.0.0)
     coderay (1.1.0)
+    columnize (0.9.0)
     daemons (1.1.9)
+    debugger-linecache (1.2.0)
     diff-lcs (1.2.5)
     dotenv (1.0.2)
     eventmachine (1.0.4)
@@ -73,6 +79,9 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    pry-byebug (2.0.0)
+      byebug (~> 3.4)
+      pry (~> 0.10)
     rack (1.6.0)
     rack-protection (1.5.3)
       rack
@@ -135,6 +144,7 @@ DEPENDENCIES
   json
   mongo_mapper
   pry
+  pry-byebug
   rake
   rspec
   sinatra

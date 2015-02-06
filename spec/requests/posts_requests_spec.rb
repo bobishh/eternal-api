@@ -1,4 +1,5 @@
 require "spec_helper"
+require 'pry'
 
 describe "Posts Requests" do
   let(:admin_email) { "admin@eternalvoid.me" }
@@ -7,7 +8,7 @@ describe "Posts Requests" do
   let(:post_body) { %Q{a #{"long, "*10} time ago in a galaxy #{"far, "*10} away ...} }
   let(:size) { 10 }
 
-#{{{ get requests
+  #{{{ get requests
   context "getting posts" do
     before do
       @admin = Admin.new(email: admin_email, password_digest: admin_password_digest)
@@ -36,39 +37,38 @@ describe "Posts Requests" do
 
       it "returns json" do responds_with_json end
 
-      it "responds with requested post" do 
-        responds_with_identical_to @post 
-      end
-    end
+          end
   end
-#}}}
+  #}}}
 
-#{{{ post requests
+  #{{{ post requests
   describe "POST /posts" do
     context "admin signed in" do
       before do
         @admin = Admin.new(email: admin_email, password_digest: admin_password_digest)
         @admin.save
-        post "/session/new", { email: @admin_email, password: admin_password }
-        post "/posts", { body: post_body, title: rand(120).to_s }
+        @token = Token.new(value: TokenGenerator.generate, created_at: Time.now, admin_id: @admin.id)
+        @token.save
+        post "/posts", { body: post_body, title: rand(120).to_s, token: @token.value, user_id: @admin.id.to_s }
       end
       it "status created" do responds_with_status 201 end
-      xit "responds with created post json" do
-        expect(json_body[:body]).to eq(post_body)
+      it "responds with created post json" do
+        expect(json_body["body"]).to eq(post_body)
       end
-      xit "saves post in db" do
-        expect(Post.find(body: post_body).size).to eq(1)
+      it "saves post in db" do
+        expect(Post.where(body: post_body).first.body).to eq(post_body)
       end
     end
     context "admin not signed in" do
       before { post "/posts", { body: post_body, title: rand(120).to_s } }
-      xit "status unauthorized" do responds_with_status 402 end
+      it "status unauthorized" do responds_with_status 401 end
     end
   end
-#}}} 
+  #}}} 
 
   after do
     Post.destroy_all
     Admin.destroy_all
+    Token.destroy_all
   end
 end
