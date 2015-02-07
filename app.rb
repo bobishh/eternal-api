@@ -40,7 +40,7 @@ helpers do
     token = params[:token]
     if user_id && token
       admin = Admin.find(user_id)
-      token = Token.first(value: token)
+      token = Token.where(value: token).sort(:created_at.desc).first
       token.admin == admin && token_fresh?(token)
     end
   end
