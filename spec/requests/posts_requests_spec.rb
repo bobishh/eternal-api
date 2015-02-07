@@ -43,13 +43,11 @@ describe "Posts Requests" do
 
   #{{{ post requests
   describe "POST /posts" do
+    let(:admin) { Admin.create(email: admin_email, password_digest: admin_password_digest) }
+    let(:token) { Token.create(value: TokenGenerator.generate, created_at: Time.now, admin_id: admin.id) }
     context "admin signed in" do
       before do
-        @admin = Admin.new(email: admin_email, password_digest: admin_password_digest)
-        @admin.save
-        @token = Token.new(value: TokenGenerator.generate, created_at: Time.now, admin_id: @admin.id)
-        @token.save
-        post "/posts", { body: post_body, title: rand(120).to_s, token: @token.value, user_id: @admin.id.to_s }
+        post "/posts", { body: post_body, title: rand(120).to_s, token: token.value, user_id: admin.id.to_s }
       end
       it "status created" do responds_with_status 201 end
       it "responds with created post json" do
@@ -58,6 +56,15 @@ describe "Posts Requests" do
       it "saves post in db" do
         expect(Post.where(body: post_body).first.body).to eq(post_body)
       end
+    end
+    context "token too old" do
+      before do
+        three_days = 3*(3600*24)
+        token.created_at = Time.now - three_days
+        token.save
+        post "/posts", { body: post_body, title: rand(120).to_s, token: token.value, user_id: admin.id.to_s }
+      end
+      it "status unauthorized" do responds_with_status 401 end
     end
     context "admin not signed in" do
       before { post "/posts", { body: post_body, title: rand(120).to_s } }

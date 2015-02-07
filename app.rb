@@ -31,13 +31,17 @@ helpers do
   def sha2(data)
     Digest::SHA2.new.hexdigest(data)
   end
+  def token_fresh?(token)
+    three_days = 3*(3600*24)
+    token.created_at > Time.now - three_days
+  end
   def valid_token?
     user_id = params[:user_id]
     token = params[:token]
     if user_id && token
       admin = Admin.find(user_id)
       token = Token.first(value: token)
-      token.admin == admin
+      token.admin == admin && token_fresh?(token)
     end
   end
 end
