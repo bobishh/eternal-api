@@ -7,7 +7,7 @@ require File.expand_path '../../app.rb', __FILE__
 module RSpecMixin
   include Rack::Test::Methods
   include SpecHelpers
-  def app() Sinatra::Application end
+  def app() EternalVoidApi end
 end
 
 RSpec.configure do |config|
