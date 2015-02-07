@@ -6,6 +6,7 @@ gem "tilt-jbuilder", require: "sinatra/jbuilder"
 gem "sinatra-contrib"
 gem "mongo_mapper"
 gem "bson_ext"
+gem "mina"
 
 group :development, :test do
   gem "rake"
